@@ -76,11 +76,11 @@ function hexdump(str, options) {
         )()}</div>`;
         let outWrapper = '<div class="hexdump-wrapper">' + hexdumpTitle;
         for (let i = 0; i < aimString.byteLength; i += offset) {
-            outWrapper += `<span class="hexdump-offset">0000${(i.toString(16).toUpperCase()).slice(-4)}</span>`;
+            outWrapper += `<div class="hexdump-hex-left"><span class="hexdump-offset">0000${(i.toString(16).toUpperCase()).slice(-4)}<span class="hexdump-leftBreak">${leftBreak}</span></span>`;
             for (let j = 0; j < offset; j++) {
                 let ch =
                     i + j > aimString.byteLength - 1
-                        ? "  "
+                        ? `<span class="hexdump-hex"></span>`
                         : `<span class="hexdump-hex">${(
                             0 +
                             view
@@ -90,10 +90,10 @@ function hexdump(str, options) {
                         ).slice(-2)}</span>`;
                 outWrapper += ch;
             }
-            outWrapper += `<span><span>${rightBreak}</span>`
+            outWrapper += `</div><div class="hexdump-hex-right"><span><span>${rightBreak}</span>`
             outWrapper += `<span>${String.fromCharCode
                 .apply(null, new Uint8Array(aimString.slice(i, i + offset)))
-                .replace(/[^\x20-\x7E]/g, ".")}</span></span></br>`;
+                .replace(/[^\x20-\x7E]/g, ".")}</span></span></div></br>`;
         }
         outWrapper += '</div>';
         dump = outWrapper;
@@ -104,7 +104,15 @@ function hexdump(str, options) {
      * @param {*} string 
      */
     const renderStringMode = () => {
-        dump =`<span style='color:red'>offset   0${spaceGenerator(spacing)}  1${spaceGenerator(spacing)}  2${spaceGenerator(spacing)}  3${spaceGenerator(spacing)}  4${spaceGenerator(spacing)}  5${spaceGenerator(spacing)}  6${spaceGenerator(spacing)}  7${spaceGenerator(spacing)}  8${spaceGenerator(spacing)}  9${spaceGenerator(spacing)}  A${spaceGenerator(spacing)}  B${spaceGenerator(spacing)}  C${spaceGenerator(spacing)}  D${spaceGenerator(spacing)}  E${spaceGenerator(spacing)}  F${spaceGenerator(spacing)}    </span>`;
+        dump =`<span style='color:red'>offset   ${(
+            () => {
+                let str = '';
+                for (let i = 0; i < offset; i++) {
+                    str += `${i.toString(16).toUpperCase()}  ${spaceGenerator(spacing)}`
+                }
+                return str;
+            }
+        )()}</span>`;
         for (let i = 0; i < aimString.byteLength; i += offset) {
             dump += `\n<span>0000${(i.toString(16).toUpperCase()).slice(-4)}${leftBreak}   </span>`;
             for (let j = 0; j < offset; j++) {
@@ -154,6 +162,15 @@ function hexdump(str, options) {
             .hexdump-offset {
                 display: inline-block;
                 width: 70px;
+            }
+            .hexdump-hex-left,
+            .hexdump-hex-right {
+                display: inline-block;
+            }
+            .hexdump-leftBreak {
+                float: right;
+                position: relative;
+                right: 10px;
             }
         `:`
             span {
