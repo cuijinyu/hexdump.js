@@ -1,5 +1,20 @@
+//
+// Hexdump v1.0.0
+// author Cuijinyu
+// 2019.5.5
+//
+
 /**
  * render hexdump 
+ * options eg:
+ * {
+ *  el: body,
+ *  mode: 'html',
+ *  spacing: 2,
+ *  rightBreak: '|',
+ *  leftBreak: '|',
+ *  offset: 16
+ * }
  * @param {*} str 
  * @param {*} options 
  */
