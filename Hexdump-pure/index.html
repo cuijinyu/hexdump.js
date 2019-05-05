@@ -8,13 +8,14 @@
     <script src='./hexdump.js'></script>
 </head>
 <body>
-    <div id="test"></div>
+    <pre id="test"></pre>
     <script>
         let testAim = document.getElementById("test");
         hexdump("I am a very very long long long test", {
             el: testAim,
             spacing: 2,
-            mode: 'html'
+            mode: 'string',
+            offset: 8
         })
     </script>
 </body>

@@ -24,12 +24,14 @@ function hexdump(str, options) {
     // mode should be html or string (string mode should be render in <pre></pre>) default string mode
     // spacing means the space between each hex
     // left break means the character between offset part and the hex part
+    // render : true => display the output, false => only get the output string
     let { el } = options;
     let mode = options.mode || 'string';
     let spacing = options.spacing || 2;
     let rightBreak = options.rightBreak || '|';
     let leftBreak = options.leftBreak || '|';
     let offset = options.offset || 16;
+    let render = options.render || true;
 
     let aimString = str;
 
@@ -66,16 +68,16 @@ function hexdump(str, options) {
         let hexdumpTitle = `<div><span style='color:red' class="hexdump-offset">offset</span>${(
             () => {
                 let str = '';
-                for (let i = 0; i < 16; i++) {
-                    str += `<span style='color:red' class="hexdump-hex">${i}</span>`
+                for (let i = 0; i < offset; i++) {
+                    str += `<span style='color:red' class="hexdump-hex">${i.toString(16).toUpperCase()}</span>`
                 }
                 return str;
             }
         )()}</div>`;
         let outWrapper = '<div class="hexdump-wrapper">' + hexdumpTitle;
-        for (let i = 0; i < aimString.byteLength; i += 16) {
-            outWrapper += `<span class="hexdump-offset">0000${(i.toString(16).toUpperCase()).slice(-4)}</span>${leftBreak}`;
-            for (let j = 0; j < 16; j++) {
+        for (let i = 0; i < aimString.byteLength; i += offset) {
+            outWrapper += `<span class="hexdump-offset">0000${(i.toString(16).toUpperCase()).slice(-4)}</span>`;
+            for (let j = 0; j < offset; j++) {
                 let ch =
                     i + j > aimString.byteLength - 1
                         ? "  "
@@ -90,7 +92,7 @@ function hexdump(str, options) {
             }
             outWrapper += `<span><span>${rightBreak}</span>`
             outWrapper += `<span>${String.fromCharCode
-                .apply(null, new Uint8Array(aimString.slice(i, i + 16)))
+                .apply(null, new Uint8Array(aimString.slice(i, i + offset)))
                 .replace(/[^\x20-\x7E]/g, ".")}</span></span></br>`;
         }
         outWrapper += '</div>';
@@ -103,9 +105,9 @@ function hexdump(str, options) {
      */
     const renderStringMode = () => {
         dump =`<span style='color:red'>offset   0${spaceGenerator(spacing)}  1${spaceGenerator(spacing)}  2${spaceGenerator(spacing)}  3${spaceGenerator(spacing)}  4${spaceGenerator(spacing)}  5${spaceGenerator(spacing)}  6${spaceGenerator(spacing)}  7${spaceGenerator(spacing)}  8${spaceGenerator(spacing)}  9${spaceGenerator(spacing)}  A${spaceGenerator(spacing)}  B${spaceGenerator(spacing)}  C${spaceGenerator(spacing)}  D${spaceGenerator(spacing)}  E${spaceGenerator(spacing)}  F${spaceGenerator(spacing)}    </span>`;
-        for (let i = 0; i < aimString.byteLength; i += 16) {
+        for (let i = 0; i < aimString.byteLength; i += offset) {
             dump += `\n<span>0000${(i.toString(16).toUpperCase()).slice(-4)}${leftBreak}   </span>`;
-            for (let j = 0; j < 16; j++) {
+            for (let j = 0; j < offset; j++) {
                 let ch =
                     i + j > aimString.byteLength - 1
                         ? "  "
@@ -120,7 +122,7 @@ function hexdump(str, options) {
             }
             dump += rightBreak;
             dump += String.fromCharCode
-                .apply(null, new Uint8Array(aimString.slice(i, i + 16)))
+                .apply(null, new Uint8Array(aimString.slice(i, i + offset)))
                 .replace(/[^\x20-\x7E]/g, ".");
         }
     }
@@ -174,8 +176,10 @@ function hexdump(str, options) {
 
     mode === 'html' ? renderHtmlMode(): renderStringMode();
 
-    el.innerHTML = dump;
-    insertStyle();
+    if (render){
+        el.innerHTML = dump;
+        insertStyle();
+    }
 
     return dump;
 }
