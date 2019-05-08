@@ -81,7 +81,7 @@ function hexdump(str, options) {
                 let ch =
                     i + j > aimString.byteLength - 1
                         ? `<span class="hexdump-hex"></span>`
-                        : `<span class="hexdump-hex">${(
+                        : `<span class="hexdump-hex" data-index="${j}">${(
                             0 +
                             view
                                 .getUint8(i + j)
@@ -90,10 +90,20 @@ function hexdump(str, options) {
                         ).slice(-2)}</span>`;
                 outWrapper += ch;
             }
-            outWrapper += `</div><div class="hexdump-hex-right"><span><span>${rightBreak}</span>`
-            outWrapper += `<span>${String.fromCharCode
+            outWrapper += `</div><div class="hexdump-hex-right"><span><span>${rightBreak}</span>`;
+            let rightChars = String.fromCharCode
                 .apply(null, new Uint8Array(aimString.slice(i, i + offset)))
-                .replace(/[^\x20-\x7E]/g, ".")}</span></span></div></br>`;
+                .replace(/[^\x20-\x7E]/g, ".")
+                .split("");
+            outWrapper += `<span>${
+                (() => {
+                    let output = '';
+                    rightChars.forEach((char, index) => {
+                        output += `<span class="hexdump-hex" data-index="${index}">${char}</span>`
+                    })
+                    return output;
+                })()
+            }</span></span></div></br>`;
         }
         outWrapper += '</div>';
         dump = outWrapper;
@@ -167,10 +177,21 @@ function hexdump(str, options) {
             .hexdump-hex-right {
                 display: inline-block;
             }
+            .hexdump-hex-left {
+                float: left;
+            }
             .hexdump-leftBreak {
                 float: right;
                 position: relative;
                 right: 10px;
+            }
+            .hexdump-red {
+                background: red;
+                color: white;
+            }
+            .hexdump-blue {
+                background: blue;
+                color: white;
             }
         `:`
             span {
@@ -196,6 +217,17 @@ function hexdump(str, options) {
     if (render){
         el.innerHTML = dump;
         insertStyle();
+    }
+
+    const hexLefts = document.getElementsByClassName("hexdump-hex-left");
+    const hexRights = document.getElementsByClassName("hexdump-hex-right");
+
+    for (let i = 0; i < hexLefts.length; i++) {
+        hexLefts[i].addEventListener("click", target => {
+            let rightCharElement = hexRights[i].getElementsByClassName("hexdump-hex")[target.srcElement.dataset.index];
+            target.srcElement.classList.toggle("hexdump-blue");
+            rightCharElement.classList.toggle("hexdump-red");
+        })
     }
 
     return dump;
