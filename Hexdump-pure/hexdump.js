@@ -1,5 +1,5 @@
 //
-// Hexdump v1.0.1
+// Hexdump v1.0.2
 // author Cuijinyu
 // 2019.5.8
 //
@@ -65,18 +65,18 @@ function hexdump(str, options) {
      * @param {*} htmlString 
      */
     const renderHtmlMode = () => {
-        let hexdumpTitle = `<div><span style='color:red' class="hexdump-offset">offset</span>${(
+        let hexdumpTitle = `<div class="hexdump-title-group"><span style='color:red' class="hexdump-offset">offset</span>${(
             () => {
                 let str = '';
                 for (let i = 0; i < offset; i++) {
-                    str += `<span style='color:red' class="hexdump-hex">${i.toString(16).toUpperCase()}</span>`
+                    str += `<span style='color:red' class="hexdump-hex hexdump-title" data-index="${i}">${i.toString(16).toUpperCase()}</span>`
                 }
                 return str;
             }
         )()}</div>`;
         let outWrapper = '<div class="hexdump-wrapper">' + hexdumpTitle;
         for (let i = 0; i < aimString.byteLength; i += offset) {
-            outWrapper += `<div class="hexdump-hex-left"><span class="hexdump-offset">0000${(i.toString(16).toUpperCase()).slice(-4)}<span class="hexdump-leftBreak">${leftBreak}</span></span>`;
+            outWrapper += `<div class="hexdump-hex-left"><span class="hexdump-offset" data-line="${Math.floor(i / offset)}">0000${(i.toString(16).toUpperCase()).slice(-4)}<span class="hexdump-leftBreak">${leftBreak}</span></span>`;
             for (let j = 0; j < offset; j++) {
                 let ch =
                     i + j > aimString.byteLength - 1
@@ -223,6 +223,11 @@ function hexdump(str, options) {
     const hexLefts = document.getElementsByClassName("hexdump-hex-left");
     const hexRights = document.getElementsByClassName("hexdump-hex-right");
     const hexWrapper = document.getElementsByClassName("hexdump-wrapper")[0];
+    const hexTitleGroup = document.getElementsByClassName('hexdump-title-group')[0];
+    let hexOffsetGroup = document.getElementsByClassName('hexdump-offset');
+
+    hexOffsetGroup = Array.prototype.slice.call(hexOffsetGroup);
+    hexOffsetGroup.shift();
 
     for (let i = 0; i < hexLefts.length; i++) {
         hexLefts[i].addEventListener("click", target => {
@@ -242,6 +247,32 @@ function hexdump(str, options) {
             startFlag = [parseInt(target.srcElement.dataset.row), parseInt(target.srcElement.dataset.index)];
         }
     })
+
+    hexTitleGroup.addEventListener("click", target => {
+        const column = parseInt(target.srcElement.dataset.index);
+        for (let i = 0; i < hexLefts.length; i++) {
+            if (hexLefts[i].getElementsByClassName("hexdump-hex")[column].classList.contains("hexdump-hex")) {
+                hexLefts[i].getElementsByClassName("hexdump-hex")[column].classList.toggle("hexdump-blue");
+                hexRights[i].getElementsByClassName("hexdump-hex")[column].classList.toggle("hexdump-red");
+            }
+        }
+    })
+
+    hexOffsetGroup.forEach(offsetElem => {
+        offsetElem.addEventListener("click", target => {
+            const line = parseInt(target.srcElement.dataset.line);
+            for (let i = 0; i < offset; i++) {
+                try {
+                    if (hexLefts[line].getElementsByClassName("hexdump-hex")[i].classList.contains("hexdump-hex")) {
+                        hexLefts[line].getElementsByClassName("hexdump-hex")[i].classList.toggle("hexdump-blue");
+                        hexRights[line].getElementsByClassName("hexdump-hex")[i].classList.toggle("hexdump-red");
+                    }
+                } catch (e) {
+
+                }
+            }
+        })
+    });
 
     hexWrapper.addEventListener("mouseup", target => {
         if (target.srcElement.classList.contains("hexdump-hex")) {
