@@ -11,7 +11,21 @@
     <pre id="test"></pre>
     <script>
         let testAim = document.getElementById("test");
-        hexdump("I am a very very long long long test", {
+        let testString = `
+        echo('<ul>');
+for(let i=0; i < data.supplies.length; i++) {
+  echo('<li>');
+  echo(data.supplies[i]);
+  echo('</li>');
+};
+echo('</ul>');
+        hexdump(testString, {
+            el: testAim,
+            spacing: 2,
+            mode: 'html',
+            offset: 16
+        })`;
+        hexdump(testString, {
             el: testAim,
             spacing: 2,
             mode: 'html',

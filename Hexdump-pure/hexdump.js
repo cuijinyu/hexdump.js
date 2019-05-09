@@ -1,7 +1,7 @@
 //
-// Hexdump v1.0.0
+// Hexdump v1.0.1
 // author Cuijinyu
-// 2019.5.5
+// 2019.5.8
 //
 
 /**
@@ -81,7 +81,7 @@ function hexdump(str, options) {
                 let ch =
                     i + j > aimString.byteLength - 1
                         ? `<span class="hexdump-hex"></span>`
-                        : `<span class="hexdump-hex" data-index="${j}">${(
+                        : `<span class="hexdump-hex" data-index="${j}"  data-row="${Math.floor(i / offset)}">${(
                             0 +
                             view
                                 .getUint8(i + j)
@@ -99,7 +99,7 @@ function hexdump(str, options) {
                 (() => {
                     let output = '';
                     rightChars.forEach((char, index) => {
-                        output += `<span class="hexdump-hex" data-index="${index}">${char}</span>`
+                        output += `<span class="hexdump-hex" data-index="${index}" data-row="${Math.floor(i / offset)}">${char}</span>`
                     })
                     return output;
                 })()
@@ -157,6 +157,7 @@ function hexdump(str, options) {
                 border-radius: 25px;
                 padding: 10px;
                 min-height: 100px;
+                user-select:none;
             }
             .hexdump-hex {
                 margin-right: 5px;
@@ -221,14 +222,60 @@ function hexdump(str, options) {
 
     const hexLefts = document.getElementsByClassName("hexdump-hex-left");
     const hexRights = document.getElementsByClassName("hexdump-hex-right");
+    const hexWrapper = document.getElementsByClassName("hexdump-wrapper")[0];
 
     for (let i = 0; i < hexLefts.length; i++) {
         hexLefts[i].addEventListener("click", target => {
             let rightCharElement = hexRights[i].getElementsByClassName("hexdump-hex")[target.srcElement.dataset.index];
-            target.srcElement.classList.toggle("hexdump-blue");
-            rightCharElement.classList.toggle("hexdump-red");
+            if (target.srcElement.classList.contains("hexdump-hex")) {
+                target.srcElement.classList.toggle("hexdump-blue");
+                rightCharElement.classList.toggle("hexdump-red");
+            }
         })
     }
+
+    // two flag which means the start and the end of the select
+    let startFlag = null, endFlag = null;
+
+    hexWrapper.addEventListener("mousedown", target => {
+        if (target.srcElement.classList.contains("hexdump-hex")) {
+            startFlag = [parseInt(target.srcElement.dataset.row), parseInt(target.srcElement.dataset.index)];
+        }
+    })
+
+    hexWrapper.addEventListener("mouseup", target => {
+        if (target.srcElement.classList.contains("hexdump-hex")) {
+            if (startFlag) {
+                endFlag = [parseInt(target.srcElement.dataset.row), parseInt(target.srcElement.dataset.index)];
+                if (endFlag[0] == startFlag[0] && endFlag[1] == startFlag[1]){
+                    return;
+                }
+                if (endFlag[0] < startFlag[0] || (endFlag[0] == startFlag[0] && endFlag[1] < startFlag[1])) {
+                    let temp = endFlag;
+                    endFlag = startFlag;
+                    startFlag = temp;
+                }
+                for (let startRow = startFlag[0]; startRow <= endFlag[0]; startRow ++) {
+                    let lineStarter = 0;
+                    let lineEnder = offset - 1;
+                    if (startRow === startFlag[0]) {
+                        lineStarter = startFlag[1];
+                    }
+                    if (startRow === endFlag[0]) {
+                        lineEnder = endFlag[1];
+                    }
+                    for (let startLine = lineStarter; startLine <= lineEnder; startLine ++) {
+                        hexLefts[startRow].getElementsByClassName("hexdump-hex")[startLine].classList.toggle("hexdump-blue");
+                        hexRights[startRow].getElementsByClassName("hexdump-hex")[startLine].classList.toggle("hexdump-red");
+                    }
+                }
+            } else {
+                startFlag = null;
+            }
+        }
+        startFlag = null;
+        endFlag = null;
+    })
 
     return dump;
 }
