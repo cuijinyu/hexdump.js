@@ -160,7 +160,7 @@ function hexdump(str, options) {
                 user-select:none;
             }
             .hexdump-hex {
-                margin-right: 5px;
+                margin-right: ${spacing}px;
                 display: inline-block;
                 width: 25px;
                 text-align: center;
