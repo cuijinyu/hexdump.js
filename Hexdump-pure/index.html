@@ -13,23 +13,23 @@
         let testAim = document.getElementById("test");
         let testString = `
         echo('<ul>');
-for(let i=0; i < data.supplies.length; i++) {
-  echo('<li>');
-  echo(data.supplies[i]);
-  echo('</li>');
-};
-echo('</ul>');
+        for(let i=0; i < data.supplies.length; i++) {
+        echo('<li>');
+        echo(data.supplies[i]);
+        echo('</li>');
+        };
+        echo('</ul>');
         hexdump(testString, {
             el: testAim,
             spacing: 2,
             mode: 'html',
             offset: 16
-        })`;
+        })`.trim();
         hexdump(testString, {
             el: testAim,
-            spacing: 2,
+            spacing: 12,
             mode: 'html',
-            offset: 8
+            offset: 16
         })
     </script>
 </body>

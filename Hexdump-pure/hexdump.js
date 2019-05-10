@@ -31,7 +31,11 @@ function hexdump(str, options) {
     let rightBreak = options.rightBreak || '|';
     let leftBreak = options.leftBreak || '|';
     let offset = options.offset || 16;
-    let render = options.render || true;
+    let render = options.render;
+
+    if (render == undefined) {
+        render = true;
+    }
 
     let aimString = str;
 
@@ -103,7 +107,7 @@ function hexdump(str, options) {
                     })
                     return output;
                 })()
-            }</span></span></div></br>`;
+                }</span></span></div></br>`;
         }
         outWrapper += '</div>';
         dump = outWrapper;
@@ -114,7 +118,7 @@ function hexdump(str, options) {
      * @param {*} string 
      */
     const renderStringMode = () => {
-        dump =`<span style='color:red'>offset   ${(
+        dump = `<span style='color:red'>offset   ${(
             () => {
                 let str = '';
                 for (let i = 0; i < offset; i++) {
@@ -148,7 +152,7 @@ function hexdump(str, options) {
     const insertStyle = () => {
 
         // style of the rendered html or string
-        let style = mode === 'html'? `
+        let style = mode === 'html' ? `
             span {
                 color: blue;
             }
@@ -194,7 +198,7 @@ function hexdump(str, options) {
                 background: blue;
                 color: white;
             }
-        `:`
+        `: `
             span {
                 color: blue;
             }
@@ -213,9 +217,9 @@ function hexdump(str, options) {
     let dump;
     let view = new DataView(aimString);
 
-    mode === 'html' ? renderHtmlMode(): renderStringMode();
+    mode === 'html' ? renderHtmlMode() : renderStringMode();
 
-    if (render){
+    if (render) {
         el.innerHTML = dump;
         insertStyle();
     }
@@ -278,7 +282,7 @@ function hexdump(str, options) {
         if (target.srcElement.classList.contains("hexdump-hex")) {
             if (startFlag) {
                 endFlag = [parseInt(target.srcElement.dataset.row), parseInt(target.srcElement.dataset.index)];
-                if (endFlag[0] == startFlag[0] && endFlag[1] == startFlag[1]){
+                if (endFlag[0] == startFlag[0] && endFlag[1] == startFlag[1]) {
                     return;
                 }
                 if (endFlag[0] < startFlag[0] || (endFlag[0] == startFlag[0] && endFlag[1] < startFlag[1])) {
@@ -286,7 +290,7 @@ function hexdump(str, options) {
                     endFlag = startFlag;
                     startFlag = temp;
                 }
-                for (let startRow = startFlag[0]; startRow <= endFlag[0]; startRow ++) {
+                for (let startRow = startFlag[0]; startRow <= endFlag[0]; startRow++) {
                     let lineStarter = 0;
                     let lineEnder = offset - 1;
                     if (startRow === startFlag[0]) {
@@ -295,7 +299,7 @@ function hexdump(str, options) {
                     if (startRow === endFlag[0]) {
                         lineEnder = endFlag[1];
                     }
-                    for (let startLine = lineStarter; startLine <= lineEnder; startLine ++) {
+                    for (let startLine = lineStarter; startLine <= lineEnder; startLine++) {
                         hexLefts[startRow].getElementsByClassName("hexdump-hex")[startLine].classList.toggle("hexdump-blue");
                         hexRights[startRow].getElementsByClassName("hexdump-hex")[startLine].classList.toggle("hexdump-red");
                     }
